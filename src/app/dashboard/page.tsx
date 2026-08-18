@@ -30,7 +30,7 @@ const SOURCES: { id: Source; label: string }[] = [
   { id: "url", label: "Посилання" },
 ];
 
-const MAX_PDF_BYTES = 4 * 1024 * 1024;
+const MAX_PDF_BYTES = 3 * 1024 * 1024;
 
 const inputClass =
   "rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400 focus:border-teal-400 focus:ring-4 focus:ring-teal-100 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:ring-teal-900/40";
@@ -229,11 +229,16 @@ export default function DashboardPage() {
                   onChange={(e) => {
                     const file = e.target.files?.[0] ?? null;
                     if (file && file.size > MAX_PDF_BYTES) {
-                      setErrorMessage("Файл завеликий (максимум 4 МБ).");
+                      setErrorMessage(
+                        `Файл завеликий: ${(file.size / 1024 / 1024).toFixed(1)} МБ (максимум 3 МБ).`,
+                      );
+                      setStatus("error");
                       setPdfFile(null);
+                      e.target.value = "";
                       return;
                     }
                     setErrorMessage("");
+                    setStatus("idle");
                     setPdfFile(file);
                   }}
                 />
