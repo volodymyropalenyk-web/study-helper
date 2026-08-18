@@ -18,13 +18,23 @@ export default function LoginPage() {
     setErrorMessage("");
 
     const supabase = createClient();
-    const { error } =
+    const { data, error } =
       mode === "signin"
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({ email, password });
 
     if (error) {
       setErrorMessage(error.message);
+      setStatus("error");
+      return;
+    }
+
+    if (!data.session) {
+      setErrorMessage(
+        mode === "signup"
+          ? "Не вдалося увійти одразу після реєстрації. Можливо, ця пошта вже зареєстрована — спробуй увійти замість реєстрації, або перевір, чи потрібне підтвердження email."
+          : "Не вдалося увійти. Спробуй ще раз.",
+      );
       setStatus("error");
       return;
     }
