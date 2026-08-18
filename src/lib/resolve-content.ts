@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createPartFromUri, type PartUnion } from "@google/genai";
+import { ai } from "@/lib/gemini";
 
 function stripHtml(html: string): string {
   return html
@@ -15,22 +17,32 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-type Part = string | { inlineData: { mimeType: string; data: string } };
-
 export type ResolveInput =
   | { source: "text"; text: string; focus?: string }
   | { source: "url"; url: string; focus?: string }
   | { source: "pdf"; pdfPath: string; pdfFileName?: string; focus?: string };
 
 export type ResolvedContent = {
-  contents: Part[];
+  contents: PartUnion[];
   inputTextForStorage: string;
 };
 
-function withFocus(parts: Part[], focus?: string): Part[] {
+function withFocus(parts: PartUnion[], focus?: string): PartUnion[] {
   const trimmed = focus?.trim();
   if (!trimmed) return parts;
   return [...parts, `Зверни особливу увагу саме на: ${trimmed}`];
+}
+
+async function waitUntilActive(name: string) {
+  for (let i = 0; i < 15; i++) {
+    const file = await ai.files.get({ name });
+    if (file.state === "ACTIVE") return file;
+    if (file.state === "FAILED") {
+      throw new Error("Gemini не зміг обробити файл.");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  }
+  throw new Error("Файл обробляється надто довго. Спробуй ще раз.");
 }
 
 export async function resolveContent(
@@ -53,11 +65,23 @@ export async function resolveContent(
     );
 
     const arrayBuffer = await blob.arrayBuffer();
-    const pdfBase64 = Buffer.from(arrayBuffer).toString("base64");
+    const fileBlob = new Blob([arrayBuffer], { type: "application/pdf" });
+
+    let uploaded = await ai.files.upload({
+      file: fileBlob,
+      config: {
+        mimeType: "application/pdf",
+        displayName: input.pdfFileName || "document.pdf",
+      },
+    });
+
+    if (uploaded.state !== "ACTIVE") {
+      uploaded = await waitUntilActive(uploaded.name!);
+    }
 
     return {
       contents: withFocus(
-        [{ inlineData: { mimeType: "application/pdf", data: pdfBase64 } }],
+        [createPartFromUri(uploaded.uri!, uploaded.mimeType!)],
         input.focus,
       ),
       inputTextForStorage: `[PDF файл: ${input.pdfFileName || "документ"}]`,

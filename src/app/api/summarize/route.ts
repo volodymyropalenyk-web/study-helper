@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/lib/supabase/server";
 import { resolveContent, type ResolveInput } from "@/lib/resolve-content";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+import { ai } from "@/lib/gemini";
 
 export const maxDuration = 60;
 
