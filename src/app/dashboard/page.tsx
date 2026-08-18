@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { SignOutButton } from "@/app/sign-out-button";
+import { SummaryContent } from "@/app/summary-content";
 
 export default function DashboardPage() {
   const [title, setTitle] = useState("");
@@ -101,8 +102,8 @@ export default function DashboardPage() {
       </form>
 
       {result && (
-        <div className="mt-6 animate-fade-in-up whitespace-pre-wrap rounded-3xl border border-card-border bg-card p-6 text-sm leading-relaxed text-slate-800 shadow-xl shadow-black/5 backdrop-blur-sm dark:text-slate-200">
-          {result}
+        <div className="mt-6 animate-fade-in-up rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
+          <SummaryContent text={result} />
         </div>
       )}
     </main>

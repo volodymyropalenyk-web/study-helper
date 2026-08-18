@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SummaryContent } from "@/app/summary-content";
 
 export default async function ProjectPage({
   params,
@@ -32,8 +33,8 @@ export default async function ProjectPage({
         {project.title}
       </h1>
 
-      <div className="animate-fade-in-up whitespace-pre-wrap rounded-3xl border border-card-border bg-card p-6 text-sm leading-relaxed text-slate-800 shadow-xl shadow-black/5 backdrop-blur-sm dark:text-slate-200">
-        {project.result_text}
+      <div className="animate-fade-in-up rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
+        <SummaryContent text={project.result_text} />
       </div>
     </main>
   );
