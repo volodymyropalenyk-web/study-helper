@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Study Helper",
+  title: "Brainmatika",
   description: "Допомога у підготовці до тестів і домашніх завдань",
 };
 
