@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/lib/supabase/server";
+import { resolveContent, type ResolveInput } from "@/lib/resolve-content";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -14,21 +15,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Не авторизовано" }, { status: 401 });
   }
 
-  const { text, title } = await request.json();
+  const body = (await request.json()) as ResolveInput & { title?: string };
 
-  if (typeof text !== "string" || text.trim().length === 0) {
-    return NextResponse.json({ error: "Порожній текст" }, { status: 400 });
+  let contents: Awaited<ReturnType<typeof resolveContent>>["contents"];
+  let inputTextForStorage: string;
+  try {
+    ({ contents, inputTextForStorage } = await resolveContent(body));
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Некоректні дані" },
+      { status: 400 },
+    );
   }
 
   let resultText: string;
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",
-      contents: text,
+      contents,
       config: {
         systemInstruction:
           "Ти допомагаєш учням і студентам готуватися до контрольних та іспитів. " +
-          "Зроби короткий, зручний і зрозумілий конспект наданого тексту українською мовою. " +
+          "Зроби короткий, зручний і зрозумілий конспект наданого матеріалу українською мовою. " +
           "Форматуй відповідь у Markdown: підзаголовки через '## ', ключові терміни та " +
           "означення виділяй **жирним**, факти й тези подавай маркованими списками ('- '). " +
           "Прибери зайву воду, залиш тільки суть.",
@@ -48,8 +56,8 @@ export async function POST(request: Request) {
     .insert({
       user_id: user.id,
       type: "summary",
-      title: title?.trim() || "Конспект без назви",
-      input_text: text,
+      title: body.title?.trim() || "Конспект без назви",
+      input_text: inputTextForStorage,
       result_text: resultText,
     })
     .select()
