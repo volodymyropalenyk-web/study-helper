@@ -4,13 +4,41 @@ import { useState } from "react";
 import Link from "next/link";
 import { SignOutButton } from "@/app/sign-out-button";
 import { SummaryContent } from "@/app/summary-content";
+import { TestContent } from "@/app/test-content";
+
+type Mode = "summary" | "test";
+
+const MODES: { id: Mode; label: string; endpoint: string; cta: string }[] = [
+  {
+    id: "summary",
+    label: "📝 Конспект",
+    endpoint: "/api/summarize",
+    cta: "Створити конспект",
+  },
+  {
+    id: "test",
+    label: "❓ Тест",
+    endpoint: "/api/generate-test",
+    cta: "Створити тест",
+  },
+];
 
 export default function DashboardPage() {
+  const [mode, setMode] = useState<Mode>("summary");
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [result, setResult] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const current = MODES.find((m) => m.id === mode)!;
+
+  function switchMode(next: Mode) {
+    setMode(next);
+    setResult(null);
+    setStatus("idle");
+    setErrorMessage("");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,7 +47,7 @@ export default function DashboardPage() {
     setResult(null);
 
     try {
-      const res = await fetch("/api/summarize", {
+      const res = await fetch(current.endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, title }),
@@ -43,9 +71,9 @@ export default function DashboardPage() {
 
   return (
     <main className="mx-auto max-w-2xl p-6">
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-          Створити конспект
+          Brainmatika
         </h1>
         <div className="flex items-center gap-5">
           <Link
@@ -56,6 +84,22 @@ export default function DashboardPage() {
           </Link>
           <SignOutButton />
         </div>
+      </div>
+
+      <div className="mb-6 flex gap-2 rounded-2xl border border-card-border bg-card p-1.5 shadow-md shadow-black/5 backdrop-blur-sm">
+        {MODES.map((m) => (
+          <button
+            key={m.id}
+            onClick={() => switchMode(m.id)}
+            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+              mode === m.id
+                ? "bg-gradient-to-r from-teal-600 to-slate-700 text-white shadow-md shadow-teal-900/20"
+                : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/60"
+            }`}
+          >
+            {m.label}
+          </button>
+        ))}
       </div>
 
       <form
@@ -87,9 +131,7 @@ export default function DashboardPage() {
               {status === "loading" && (
                 <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
               )}
-              {status === "loading"
-                ? "Створюємо конспект..."
-                : "Створити конспект"}
+              {status === "loading" ? "Зачекай, генеруємо..." : current.cta}
             </span>
             <span className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
           </button>
@@ -103,7 +145,11 @@ export default function DashboardPage() {
 
       {result && (
         <div className="mt-6 animate-fade-in-up rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
-          <SummaryContent text={result} />
+          {mode === "summary" ? (
+            <SummaryContent text={result} />
+          ) : (
+            <TestContent resultText={result} />
+          )}
         </div>
       )}
     </main>

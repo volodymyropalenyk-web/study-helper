@@ -20,7 +20,7 @@ export default async function LibraryPage() {
             href="/dashboard"
             className="text-sm font-medium text-teal-700 transition-colors hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-300"
           >
-            + Новий конспект
+            + Створити
           </Link>
           <SignOutButton />
         </div>
@@ -39,6 +39,7 @@ export default async function LibraryPage() {
                 className="group block rounded-2xl border border-card-border bg-card p-4 shadow-md shadow-black/5 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-lg hover:shadow-black/10 dark:hover:border-teal-700"
               >
                 <div className="font-medium text-slate-900 transition-colors group-hover:text-teal-700 dark:text-slate-100 dark:group-hover:text-teal-400">
+                  {project.type === "test" ? "❓ " : "📝 "}
                   {project.title}
                 </div>
                 <div className="mt-1 text-xs text-slate-400 dark:text-slate-500">

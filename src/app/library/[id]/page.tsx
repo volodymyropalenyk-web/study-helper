@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SummaryContent } from "@/app/summary-content";
+import { TestContent } from "@/app/test-content";
 
 export default async function ProjectPage({
   params,
@@ -30,11 +31,16 @@ export default async function ProjectPage({
       </Link>
 
       <h1 className="mt-4 mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">
+        {project.type === "test" ? "❓ " : "📝 "}
         {project.title}
       </h1>
 
       <div className="animate-fade-in-up rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
-        <SummaryContent text={project.result_text} />
+        {project.type === "test" ? (
+          <TestContent resultText={project.result_text} />
+        ) : (
+          <SummaryContent text={project.result_text} />
+        )}
       </div>
     </main>
   );
