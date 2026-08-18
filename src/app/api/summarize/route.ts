@@ -5,6 +5,8 @@ import { resolveContent, type ResolveInput } from "@/lib/resolve-content";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -20,7 +22,7 @@ export async function POST(request: Request) {
   let contents: Awaited<ReturnType<typeof resolveContent>>["contents"];
   let inputTextForStorage: string;
   try {
-    ({ contents, inputTextForStorage } = await resolveContent(body));
+    ({ contents, inputTextForStorage } = await resolveContent(body, supabase));
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Некоректні дані" },

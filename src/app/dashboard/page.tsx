@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SignOutButton } from "@/app/sign-out-button";
 import { SummaryContent } from "@/app/summary-content";
 import { TestContent } from "@/app/test-content";
+import { createClient } from "@/lib/supabase/client";
 
 type Mode = "summary" | "test";
 type Source = "text" | "pdf" | "url";
@@ -30,22 +31,10 @@ const SOURCES: { id: Source; label: string }[] = [
   { id: "url", label: "Посилання" },
 ];
 
-const MAX_PDF_BYTES = 3 * 1024 * 1024;
+const MAX_PDF_BYTES = 20 * 1024 * 1024;
 
 const inputClass =
   "rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400 focus:border-teal-400 focus:ring-4 focus:ring-teal-100 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:ring-teal-900/40";
-
-function readFileAsBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      resolve(result.split(",")[1] ?? "");
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
 
 export default function DashboardPage() {
   const [mode, setMode] = useState<Mode>("summary");
@@ -99,10 +88,31 @@ export default function DashboardPage() {
     try {
       let payload: Record<string, unknown>;
       if (source === "pdf" && pdfFile) {
-        const pdfBase64 = await readFileAsBase64(pdfFile);
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) {
+          setStatus("error");
+          setErrorMessage("Сесія закінчилась. Онови сторінку і зайди знову.");
+          return;
+        }
+
+        const safeName = pdfFile.name.replace(/[^\w.\-]+/g, "_");
+        const path = `${user.id}/${Date.now()}-${safeName}`;
+        const { error: uploadError } = await supabase.storage
+          .from("pdfs")
+          .upload(path, pdfFile, { contentType: "application/pdf" });
+
+        if (uploadError) {
+          setStatus("error");
+          setErrorMessage(`Не вдалося завантажити файл: ${uploadError.message}`);
+          return;
+        }
+
         payload = {
           source: "pdf",
-          pdfBase64,
+          pdfPath: path,
           pdfFileName: pdfFile.name,
           title,
           focus,
@@ -230,7 +240,7 @@ export default function DashboardPage() {
                     const file = e.target.files?.[0] ?? null;
                     if (file && file.size > MAX_PDF_BYTES) {
                       setErrorMessage(
-                        `Файл завеликий: ${(file.size / 1024 / 1024).toFixed(1)} МБ (максимум 3 МБ).`,
+                        `Файл завеликий: ${(file.size / 1024 / 1024).toFixed(1)} МБ (максимум 20 МБ).`,
                       );
                       setStatus("error");
                       setPdfFile(null);

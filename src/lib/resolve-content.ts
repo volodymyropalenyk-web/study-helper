@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 function stripHtml(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -18,7 +20,7 @@ type Part = string | { inlineData: { mimeType: string; data: string } };
 export type ResolveInput =
   | { source: "text"; text: string; focus?: string }
   | { source: "url"; url: string; focus?: string }
-  | { source: "pdf"; pdfBase64: string; pdfFileName?: string; focus?: string };
+  | { source: "pdf"; pdfPath: string; pdfFileName?: string; focus?: string };
 
 export type ResolvedContent = {
   contents: Part[];
@@ -33,11 +35,29 @@ function withFocus(parts: Part[], focus?: string): Part[] {
 
 export async function resolveContent(
   input: ResolveInput,
+  supabase: SupabaseClient,
 ): Promise<ResolvedContent> {
   if (input.source === "pdf") {
+    const { data: blob, error: downloadError } = await supabase.storage
+      .from("pdfs")
+      .download(input.pdfPath);
+
+    if (downloadError || !blob) {
+      throw new Error("Не вдалося отримати завантажений PDF-файл.");
+    }
+
+    // Best-effort cleanup — the file was only needed for this one request.
+    supabase.storage.from("pdfs").remove([input.pdfPath]).then(
+      () => {},
+      () => {},
+    );
+
+    const arrayBuffer = await blob.arrayBuffer();
+    const pdfBase64 = Buffer.from(arrayBuffer).toString("base64");
+
     return {
       contents: withFocus(
-        [{ inlineData: { mimeType: "application/pdf", data: input.pdfBase64 } }],
+        [{ inlineData: { mimeType: "application/pdf", data: pdfBase64 } }],
         input.focus,
       ),
       inputTextForStorage: `[PDF файл: ${input.pdfFileName || "документ"}]`,
