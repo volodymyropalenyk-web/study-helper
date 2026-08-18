@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { SignOutButton } from "@/app/sign-out-button";
 import { SummaryContent } from "@/app/summary-content";
@@ -54,9 +54,11 @@ export default function DashboardPage() {
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [focus, setFocus] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [result, setResult] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const current = MODES.find((m) => m.id === mode)!;
 
@@ -103,11 +105,12 @@ export default function DashboardPage() {
           pdfBase64,
           pdfFileName: pdfFile.name,
           title,
+          focus,
         };
       } else if (source === "url") {
-        payload = { source: "url", url: url.trim(), title };
+        payload = { source: "url", url: url.trim(), title, focus };
       } else {
-        payload = { source: "text", text, title };
+        payload = { source: "text", text, title, focus };
       }
 
       const res = await fetch(current.endpoint, {
@@ -217,15 +220,9 @@ export default function DashboardPage() {
             )}
 
             {source === "pdf" && (
-              <label
-                className={`flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed px-4 py-8 text-center text-sm transition-colors ${
-                  pdfFile
-                    ? "border-teal-300 bg-teal-50/50 text-teal-800 dark:border-teal-700 dark:bg-teal-950/20 dark:text-teal-300"
-                    : "border-slate-300 text-slate-500 hover:border-teal-300 dark:border-slate-600 dark:text-slate-400"
-                }`}
-              >
-                {pdfFile ? `📄 ${pdfFile.name}` : "Натисни, щоб обрати PDF-файл"}
+              <>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="application/pdf"
                   className="hidden"
@@ -240,7 +237,30 @@ export default function DashboardPage() {
                     setPdfFile(file);
                   }}
                 />
-              </label>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`flex w-full flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed px-4 py-8 text-center text-sm transition-colors ${
+                    pdfFile
+                      ? "border-teal-300 bg-teal-50/50 text-teal-800 dark:border-teal-700 dark:bg-teal-950/20 dark:text-teal-300"
+                      : "border-slate-300 text-slate-500 hover:border-teal-300 dark:border-slate-600 dark:text-slate-400"
+                  }`}
+                >
+                  {pdfFile
+                    ? `📄 ${pdfFile.name}`
+                    : "Натисни, щоб обрати PDF-файл"}
+                </button>
+              </>
+            )}
+
+            {(source === "pdf" || source === "url") && (
+              <input
+                type="text"
+                placeholder="На чому зосередитись? (необов'язково, наприклад: тільки розділ 3)"
+                value={focus}
+                onChange={(e) => setFocus(e.target.value)}
+                className={inputClass}
+              />
             )}
 
             <button

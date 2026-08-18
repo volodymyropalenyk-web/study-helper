@@ -13,24 +13,33 @@ function stripHtml(html: string): string {
     .trim();
 }
 
+type Part = string | { inlineData: { mimeType: string; data: string } };
+
 export type ResolveInput =
-  | { source: "text"; text: string }
-  | { source: "url"; url: string }
-  | { source: "pdf"; pdfBase64: string; pdfFileName?: string };
+  | { source: "text"; text: string; focus?: string }
+  | { source: "url"; url: string; focus?: string }
+  | { source: "pdf"; pdfBase64: string; pdfFileName?: string; focus?: string };
 
 export type ResolvedContent = {
-  contents: string | { inlineData: { mimeType: string; data: string } }[];
+  contents: Part[];
   inputTextForStorage: string;
 };
+
+function withFocus(parts: Part[], focus?: string): Part[] {
+  const trimmed = focus?.trim();
+  if (!trimmed) return parts;
+  return [...parts, `Зверни особливу увагу саме на: ${trimmed}`];
+}
 
 export async function resolveContent(
   input: ResolveInput,
 ): Promise<ResolvedContent> {
   if (input.source === "pdf") {
     return {
-      contents: [
-        { inlineData: { mimeType: "application/pdf", data: input.pdfBase64 } },
-      ],
+      contents: withFocus(
+        [{ inlineData: { mimeType: "application/pdf", data: input.pdfBase64 } }],
+        input.focus,
+      ),
       inputTextForStorage: `[PDF файл: ${input.pdfFileName || "документ"}]`,
     };
   }
@@ -55,8 +64,14 @@ export async function resolveContent(
     if (text.length < 50) {
       throw new Error("На сторінці не знайшлося достатньо тексту.");
     }
-    return { contents: text, inputTextForStorage: text };
+    return {
+      contents: withFocus([text], input.focus),
+      inputTextForStorage: text,
+    };
   }
 
-  return { contents: input.text, inputTextForStorage: input.text };
+  return {
+    contents: withFocus([input.text], input.focus),
+    inputTextForStorage: input.text,
+  };
 }
