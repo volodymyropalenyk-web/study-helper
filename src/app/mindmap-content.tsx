@@ -41,7 +41,7 @@ export function MindmapContent({
     try {
       const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(containerRef.current, {
-        backgroundColor: "#ffffff",
+        backgroundColor: theme.exportBg,
         pixelRatio: 2,
       });
       const link = document.createElement("a");
@@ -67,7 +67,7 @@ export function MindmapContent({
         </button>
       </div>
 
-      <div ref={containerRef} className="bg-white p-4 dark:bg-slate-900">
+      <div ref={containerRef} className="p-4">
         {/* Central node */}
         <div className="flex flex-col items-center gap-2">
           <div
