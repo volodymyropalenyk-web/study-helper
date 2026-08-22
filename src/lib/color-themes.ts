@@ -38,7 +38,7 @@ export const THEMES: Record<ThemeId, Theme> = {
       "prose-code:bg-teal-100 prose-code:text-teal-800 dark:prose-code:bg-teal-950/60 dark:prose-code:text-teal-300",
     markerClass: "prose-li:marker:text-teal-500 dark:prose-li:marker:text-teal-500",
     cardClass:
-      "border-teal-200 bg-teal-50/70 dark:border-teal-800/50 dark:bg-teal-950/20",
+      "border-teal-200 bg-teal-50 dark:border-teal-800/60 dark:bg-teal-950/40",
     connectorClass: "bg-teal-300 dark:bg-teal-700",
     connectorBorderClass: "border-teal-300 dark:border-teal-700",
     nodeGradient: "from-teal-500 to-teal-600",
@@ -52,7 +52,7 @@ export const THEMES: Record<ThemeId, Theme> = {
       "prose-code:bg-sky-100 prose-code:text-sky-800 dark:prose-code:bg-sky-950/60 dark:prose-code:text-sky-300",
     markerClass: "prose-li:marker:text-sky-500 dark:prose-li:marker:text-sky-500",
     cardClass:
-      "border-sky-200 bg-sky-50/70 dark:border-sky-800/50 dark:bg-sky-950/20",
+      "border-sky-200 bg-sky-50 dark:border-sky-800/60 dark:bg-sky-950/40",
     connectorClass: "bg-sky-300 dark:bg-sky-700",
     connectorBorderClass: "border-sky-300 dark:border-sky-700",
     nodeGradient: "from-sky-500 to-sky-600",
@@ -67,7 +67,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     markerClass:
       "prose-li:marker:text-indigo-500 dark:prose-li:marker:text-indigo-500",
     cardClass:
-      "border-indigo-200 bg-indigo-50/70 dark:border-indigo-800/50 dark:bg-indigo-950/20",
+      "border-indigo-200 bg-indigo-50 dark:border-indigo-800/60 dark:bg-indigo-950/40",
     connectorClass: "bg-indigo-300 dark:bg-indigo-700",
     connectorBorderClass: "border-indigo-300 dark:border-indigo-700",
     nodeGradient: "from-indigo-500 to-indigo-600",
@@ -82,7 +82,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     markerClass:
       "prose-li:marker:text-emerald-500 dark:prose-li:marker:text-emerald-500",
     cardClass:
-      "border-emerald-200 bg-emerald-50/70 dark:border-emerald-800/50 dark:bg-emerald-950/20",
+      "border-emerald-200 bg-emerald-50 dark:border-emerald-800/60 dark:bg-emerald-950/40",
     connectorClass: "bg-emerald-300 dark:bg-emerald-700",
     connectorBorderClass: "border-emerald-300 dark:border-emerald-700",
     nodeGradient: "from-emerald-500 to-emerald-600",
@@ -97,7 +97,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     markerClass:
       "prose-li:marker:text-amber-500 dark:prose-li:marker:text-amber-500",
     cardClass:
-      "border-amber-200 bg-amber-50/70 dark:border-amber-800/50 dark:bg-amber-950/20",
+      "border-amber-200 bg-amber-50 dark:border-amber-800/60 dark:bg-amber-950/40",
     connectorClass: "bg-amber-300 dark:bg-amber-700",
     connectorBorderClass: "border-amber-300 dark:border-amber-700",
     nodeGradient: "from-amber-500 to-amber-600",
@@ -111,7 +111,7 @@ export const THEMES: Record<ThemeId, Theme> = {
       "prose-code:bg-rose-100 prose-code:text-rose-800 dark:prose-code:bg-rose-950/60 dark:prose-code:text-rose-300",
     markerClass: "prose-li:marker:text-rose-500 dark:prose-li:marker:text-rose-500",
     cardClass:
-      "border-rose-200 bg-rose-50/70 dark:border-rose-800/50 dark:bg-rose-950/20",
+      "border-rose-200 bg-rose-50 dark:border-rose-800/60 dark:bg-rose-950/40",
     connectorClass: "bg-rose-300 dark:bg-rose-700",
     connectorBorderClass: "border-rose-300 dark:border-rose-700",
     nodeGradient: "from-rose-500 to-rose-600",
