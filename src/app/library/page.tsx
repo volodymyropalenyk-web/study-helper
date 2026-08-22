@@ -13,6 +13,7 @@ const SECTIONS: { type: string; label: string }[] = [
   { type: "summary", label: "📝 Конспекти" },
   { type: "test", label: "❓ Тести" },
   { type: "mindmap", label: "🧠 Інтелект-карти" },
+  { type: "presentation", label: "🎞 Презентації" },
 ];
 
 function ProjectList({ projects }: { projects: Project[] }) {

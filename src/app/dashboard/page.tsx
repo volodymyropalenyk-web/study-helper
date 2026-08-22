@@ -6,10 +6,11 @@ import { SignOutButton } from "@/app/sign-out-button";
 import { SummaryContent } from "@/app/summary-content";
 import { TestContent } from "@/app/test-content";
 import { MindmapContent } from "@/app/mindmap-content";
+import { PresentationContent } from "@/app/presentation-content";
 import { createClient } from "@/lib/supabase/client";
 import { THEME_IDS, THEMES, type ThemeId } from "@/lib/color-themes";
 
-type Mode = "summary" | "test" | "mindmap";
+type Mode = "summary" | "test" | "mindmap" | "presentation";
 type Source = "text" | "pdf" | "url";
 
 const MODES: { id: Mode; label: string; endpoint: string; cta: string }[] = [
@@ -30,6 +31,12 @@ const MODES: { id: Mode; label: string; endpoint: string; cta: string }[] = [
     label: "🧠 Карта",
     endpoint: "/api/generate-mindmap",
     cta: "Створити карту",
+  },
+  {
+    id: "presentation",
+    label: "🎞 Презентація",
+    endpoint: "/api/generate-presentation",
+    cta: "Створити презентацію",
   },
 ];
 
@@ -53,6 +60,7 @@ export default function DashboardPage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [focus, setFocus] = useState("");
   const [color, setColor] = useState<ThemeId>("teal");
+  const [slideCount, setSlideCount] = useState(8);
   const [status, setStatus] = useState<
     "idle" | "uploading" | "loading" | "error"
   >("idle");
@@ -129,12 +137,13 @@ export default function DashboardPage() {
           title,
           focus,
           color,
+          slideCount,
         };
         setStatus("loading");
       } else if (source === "url") {
-        payload = { source: "url", url: url.trim(), title, focus, color };
+        payload = { source: "url", url: url.trim(), title, focus, color, slideCount };
       } else {
-        payload = { source: "text", text, title, focus, color };
+        payload = { source: "text", text, title, focus, color, slideCount };
       }
 
       const res = await fetch(current.endpoint, {
@@ -292,7 +301,25 @@ export default function DashboardPage() {
               />
             )}
 
-            {(mode === "summary" || mode === "mindmap") && (
+            {mode === "presentation" && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-500 dark:text-slate-400">
+                  Кількість слайдів:
+                </span>
+                <input
+                  type="number"
+                  min={3}
+                  max={15}
+                  value={slideCount}
+                  onChange={(e) => setSlideCount(Number(e.target.value))}
+                  className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm text-slate-900 outline-none focus:border-teal-400 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100"
+                />
+              </div>
+            )}
+
+            {(mode === "summary" ||
+              mode === "mindmap" ||
+              mode === "presentation") && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-slate-500 dark:text-slate-400">
                   Колір:
@@ -357,6 +384,9 @@ export default function DashboardPage() {
           {mode === "test" && <TestContent resultText={result} />}
           {mode === "mindmap" && (
             <MindmapContent resultText={result} color={color} />
+          )}
+          {mode === "presentation" && (
+            <PresentationContent resultText={result} color={color} />
           )}
         </div>
       )}

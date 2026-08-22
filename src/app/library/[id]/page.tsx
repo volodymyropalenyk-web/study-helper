@@ -4,10 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import { SummaryContent } from "@/app/summary-content";
 import { TestContent } from "@/app/test-content";
 import { MindmapContent } from "@/app/mindmap-content";
+import { PresentationContent } from "@/app/presentation-content";
 
 const TYPE_ICON: Record<string, string> = {
   test: "❓ ",
   mindmap: "🧠 ",
+  presentation: "🎞 ",
   summary: "📝 ",
 };
 
@@ -47,6 +49,12 @@ export default async function ProjectPage({
       )}
       {project.type === "mindmap" && (
         <MindmapContent resultText={project.result_text} color={project.color} />
+      )}
+      {project.type === "presentation" && (
+        <PresentationContent
+          resultText={project.result_text}
+          color={project.color}
+        />
       )}
       {project.type === "summary" && (
         <SummaryContent text={project.result_text} color={project.color} />
