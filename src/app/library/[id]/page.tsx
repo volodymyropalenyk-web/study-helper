@@ -54,6 +54,7 @@ export default async function ProjectPage({
         <PresentationContent
           resultText={project.result_text}
           color={project.color}
+          projectId={project.id}
         />
       )}
       {project.type === "summary" && (

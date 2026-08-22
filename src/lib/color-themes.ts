@@ -27,6 +27,7 @@ type Theme = {
   connectorBorderClass: string;
   nodeGradient: string;
   exportBg: string;
+  hexAccent: string;
 };
 
 export const THEMES: Record<ThemeId, Theme> = {
@@ -44,6 +45,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     connectorBorderClass: "border-teal-300 dark:border-teal-700",
     nodeGradient: "from-teal-500 to-teal-600",
     exportBg: "#f0fdfa",
+    hexAccent: "#0d9488",
   },
   sky: {
     label: "Небесний",
@@ -59,6 +61,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     connectorBorderClass: "border-sky-300 dark:border-sky-700",
     nodeGradient: "from-sky-500 to-sky-600",
     exportBg: "#f0f9ff",
+    hexAccent: "#0284c7",
   },
   indigo: {
     label: "Індиго",
@@ -75,6 +78,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     connectorBorderClass: "border-indigo-300 dark:border-indigo-700",
     nodeGradient: "from-indigo-500 to-indigo-600",
     exportBg: "#eef2ff",
+    hexAccent: "#4f46e5",
   },
   emerald: {
     label: "Смарагдовий",
@@ -91,6 +95,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     connectorBorderClass: "border-emerald-300 dark:border-emerald-700",
     nodeGradient: "from-emerald-500 to-emerald-600",
     exportBg: "#ecfdf5",
+    hexAccent: "#059669",
   },
   amber: {
     label: "Бурштиновий",
@@ -107,6 +112,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     connectorBorderClass: "border-amber-300 dark:border-amber-700",
     nodeGradient: "from-amber-500 to-amber-600",
     exportBg: "#fffbeb",
+    hexAccent: "#d97706",
   },
   rose: {
     label: "Рожевий",
@@ -122,6 +128,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     connectorBorderClass: "border-rose-300 dark:border-rose-700",
     nodeGradient: "from-rose-500 to-rose-600",
     exportBg: "#fff1f2",
+    hexAccent: "#e11d48",
   },
 };
 

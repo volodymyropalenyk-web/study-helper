@@ -65,6 +65,7 @@ export default function DashboardPage() {
     "idle" | "uploading" | "loading" | "error"
   >("idle");
   const [result, setResult] = useState<string | null>(null);
+  const [resultId, setResultId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,6 +78,7 @@ export default function DashboardPage() {
 
   function resetForm() {
     setResult(null);
+    setResultId(null);
     setStatus("idle");
     setErrorMessage("");
   }
@@ -162,6 +164,7 @@ export default function DashboardPage() {
 
       setStatus("idle");
       setResult(data.project.result_text);
+      setResultId(data.project.id);
     } catch {
       setStatus("error");
       setErrorMessage("Немає з'єднання з сервером. Спробуй ще раз.");
@@ -386,7 +389,11 @@ export default function DashboardPage() {
             <MindmapContent resultText={result} color={color} />
           )}
           {mode === "presentation" && (
-            <PresentationContent resultText={result} color={color} />
+            <PresentationContent
+              resultText={result}
+              color={color}
+              projectId={resultId ?? undefined}
+            />
           )}
         </div>
       )}
