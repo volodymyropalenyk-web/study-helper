@@ -3,6 +3,7 @@ import { Type } from "@google/genai";
 import { createClient } from "@/lib/supabase/server";
 import { resolveContent, type ResolveInput } from "@/lib/resolve-content";
 import { ai } from "@/lib/gemini";
+import { THEME_IDS } from "@/lib/color-themes";
 
 export const maxDuration = 300;
 
@@ -69,7 +70,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Не авторизовано" }, { status: 401 });
   }
 
-  const body = (await request.json()) as ResolveInput & { title?: string };
+  const body = (await request.json()) as ResolveInput & {
+    title?: string;
+    color?: string;
+  };
+  const color = THEME_IDS.includes(body.color as (typeof THEME_IDS)[number])
+    ? body.color
+    : "teal";
 
   let contents: Awaited<ReturnType<typeof resolveContent>>["contents"];
   let inputTextForStorage: string;
@@ -137,6 +144,7 @@ export async function POST(request: Request) {
       title: body.title?.trim() || "Карта без назви",
       input_text: inputTextForStorage,
       result_text: resultText,
+      color,
     })
     .select()
     .single();

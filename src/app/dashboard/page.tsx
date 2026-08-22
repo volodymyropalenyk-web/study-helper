@@ -7,6 +7,7 @@ import { SummaryContent } from "@/app/summary-content";
 import { TestContent } from "@/app/test-content";
 import { MindmapContent } from "@/app/mindmap-content";
 import { createClient } from "@/lib/supabase/client";
+import { THEME_IDS, THEMES, type ThemeId } from "@/lib/color-themes";
 
 type Mode = "summary" | "test" | "mindmap";
 type Source = "text" | "pdf" | "url";
@@ -51,6 +52,7 @@ export default function DashboardPage() {
   const [url, setUrl] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [focus, setFocus] = useState("");
+  const [color, setColor] = useState<ThemeId>("teal");
   const [status, setStatus] = useState<
     "idle" | "uploading" | "loading" | "error"
   >("idle");
@@ -126,12 +128,13 @@ export default function DashboardPage() {
           pdfFileName: pdfFile.name,
           title,
           focus,
+          color,
         };
         setStatus("loading");
       } else if (source === "url") {
-        payload = { source: "url", url: url.trim(), title, focus };
+        payload = { source: "url", url: url.trim(), title, focus, color };
       } else {
-        payload = { source: "text", text, title, focus };
+        payload = { source: "text", text, title, focus, color };
       }
 
       const res = await fetch(current.endpoint, {
@@ -289,6 +292,29 @@ export default function DashboardPage() {
               />
             )}
 
+            {(mode === "summary" || mode === "mindmap") && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-500 dark:text-slate-400">
+                  Колір:
+                </span>
+                <div className="flex gap-1.5">
+                  {THEME_IDS.map((id) => (
+                    <button
+                      key={id}
+                      type="button"
+                      title={THEMES[id].label}
+                      onClick={() => setColor(id)}
+                      className={`h-6 w-6 rounded-full ${THEMES[id].swatch} transition-transform hover:scale-110 ${
+                        color === id
+                          ? "ring-2 ring-offset-2 ring-slate-400 dark:ring-offset-slate-900"
+                          : ""
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={status === "loading" || status === "uploading"}
@@ -326,9 +352,13 @@ export default function DashboardPage() {
             </button>
           </div>
           <div className="rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
-            {mode === "summary" && <SummaryContent text={result} />}
+            {mode === "summary" && (
+              <SummaryContent text={result} color={color} />
+            )}
             {mode === "test" && <TestContent resultText={result} />}
-            {mode === "mindmap" && <MindmapContent resultText={result} />}
+            {mode === "mindmap" && (
+              <MindmapContent resultText={result} color={color} />
+            )}
           </div>
         </div>
       )}

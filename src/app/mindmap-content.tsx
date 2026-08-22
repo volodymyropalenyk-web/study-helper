@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { getTheme, getBranchGradients } from "@/lib/color-themes";
 
 type Child = { title: string; thesis: string };
 type Branch = {
@@ -11,18 +12,17 @@ type Branch = {
 };
 type Mindmap = { title: string; emoji: string; branches: Branch[] };
 
-const NODE_COLORS = [
-  "from-teal-500 to-teal-600",
-  "from-sky-500 to-sky-600",
-  "from-indigo-500 to-indigo-600",
-  "from-emerald-500 to-emerald-600",
-  "from-cyan-500 to-cyan-600",
-  "from-slate-500 to-slate-600",
-];
-
-export function MindmapContent({ resultText }: { resultText: string }) {
+export function MindmapContent({
+  resultText,
+  color,
+}: {
+  resultText: string;
+  color?: string;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const theme = getTheme(color);
+  const branchGradients = getBranchGradients(color);
 
   let map: Mindmap;
   try {
@@ -68,7 +68,9 @@ export function MindmapContent({ resultText }: { resultText: string }) {
       <div ref={containerRef} className="bg-white p-4 dark:bg-slate-900">
         {/* Central node */}
         <div className="flex flex-col items-center gap-2">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-teal-600 to-slate-700 text-4xl shadow-lg shadow-teal-900/30">
+          <div
+            className={`flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br ${theme.gradient} text-4xl shadow-lg shadow-teal-900/30`}
+          >
             {map.emoji}
           </div>
           <div className="rounded-lg bg-slate-900 px-4 py-1.5 text-center font-bold text-white shadow-md dark:bg-slate-700">
@@ -79,7 +81,7 @@ export function MindmapContent({ resultText }: { resultText: string }) {
         {/* Branches */}
         <div className="mx-auto mt-2 flex max-w-2xl flex-col">
           {map.branches.map((branch, i) => {
-            const color = NODE_COLORS[i % NODE_COLORS.length];
+            const branchColor = branchGradients[i % branchGradients.length];
             return (
               <div key={i} className="flex gap-3">
                 {/* connector column */}
@@ -98,7 +100,7 @@ export function MindmapContent({ resultText }: { resultText: string }) {
                 <div className="flex-1 pb-4">
                   <div className="flex items-start gap-2.5 rounded-2xl border border-card-border bg-card p-3 shadow-sm">
                     <div
-                      className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${color} text-lg shadow-sm`}
+                      className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${branchColor} text-lg shadow-sm`}
                     >
                       {branch.emoji}
                     </div>

@@ -47,10 +47,10 @@ export default async function ProjectPage({
           <TestContent resultText={project.result_text} />
         )}
         {project.type === "mindmap" && (
-          <MindmapContent resultText={project.result_text} />
+          <MindmapContent resultText={project.result_text} color={project.color} />
         )}
         {project.type === "summary" && (
-          <SummaryContent text={project.result_text} />
+          <SummaryContent text={project.result_text} color={project.color} />
         )}
       </div>
     </main>

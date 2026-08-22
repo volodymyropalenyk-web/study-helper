@@ -7,6 +7,7 @@ create table if not exists public.projects (
   title text not null,
   input_text text not null,
   result_text text not null,
+  color text not null default 'teal',
   created_at timestamptz not null default now()
 );
 
