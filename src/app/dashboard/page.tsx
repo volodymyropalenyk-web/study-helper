@@ -44,7 +44,9 @@ export default function DashboardPage() {
   const [url, setUrl] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [focus, setFocus] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "uploading" | "loading" | "error"
+  >("idle");
   const [result, setResult] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -88,6 +90,7 @@ export default function DashboardPage() {
     try {
       let payload: Record<string, unknown>;
       if (source === "pdf" && pdfFile) {
+        setStatus("uploading");
         const supabase = createClient();
         const {
           data: { user },
@@ -117,6 +120,7 @@ export default function DashboardPage() {
           title,
           focus,
         };
+        setStatus("loading");
       } else if (source === "url") {
         payload = { source: "url", url: url.trim(), title, focus };
       } else {
@@ -280,14 +284,18 @@ export default function DashboardPage() {
 
             <button
               type="submit"
-              disabled={status === "loading"}
+              disabled={status === "loading" || status === "uploading"}
               className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-slate-700 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-teal-900/20 transition-all duration-200 hover:shadow-lg hover:shadow-teal-900/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
             >
               <span className="relative z-10 inline-flex items-center gap-2">
-                {status === "loading" && (
+                {(status === "loading" || status === "uploading") && (
                   <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                 )}
-                {status === "loading" ? "Зачекай, генеруємо..." : current.cta}
+                {status === "uploading"
+                  ? "Завантажуємо файл..."
+                  : status === "loading"
+                    ? "Зачекай, генеруємо... (великі файли можуть довше)"
+                    : current.cta}
               </span>
               <span className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
             </button>

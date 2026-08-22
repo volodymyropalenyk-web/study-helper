@@ -76,6 +76,26 @@ export async function POST(request: Request) {
       },
     });
     resultText = response.text ?? "";
+
+    let questionCount = 0;
+    try {
+      questionCount = JSON.parse(resultText).questions?.length ?? 0;
+    } catch {
+      questionCount = 0;
+    }
+    if (questionCount === 0) {
+      console.error(
+        "[generate-test] empty/invalid response, finishReason:",
+        response.candidates?.[0]?.finishReason,
+      );
+      return NextResponse.json(
+        {
+          error:
+            "Gemini не зміг згенерувати тест для цього матеріалу. Спробуй з іншим текстом/файлом.",
+        },
+        { status: 502 },
+      );
+    }
   } catch (err) {
     console.error("[generate-test] gemini error:", err);
     return NextResponse.json(

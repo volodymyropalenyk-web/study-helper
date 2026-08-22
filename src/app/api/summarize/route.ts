@@ -43,6 +43,19 @@ export async function POST(request: Request) {
       },
     });
     resultText = response.text ?? "";
+    if (!resultText.trim()) {
+      console.error(
+        "[summarize] empty response, finishReason:",
+        response.candidates?.[0]?.finishReason,
+      );
+      return NextResponse.json(
+        {
+          error:
+            "Gemini не зміг згенерувати конспект для цього матеріалу. Спробуй з іншим текстом/файлом.",
+        },
+        { status: 502 },
+      );
+    }
   } catch (err) {
     console.error("[summarize] gemini error:", err);
     return NextResponse.json(

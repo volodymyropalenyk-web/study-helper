@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createPartFromUri, type PartUnion } from "@google/genai";
 import { ai } from "@/lib/gemini";
 
+const MAX_TEXT_CHARS = 200000;
+
 function stripHtml(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -93,7 +95,7 @@ export async function resolveContent(
     try {
       const res = await fetch(input.url, {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; Brainmatika/1.0)" },
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(30000),
       });
       if (!res.ok) {
         throw new Error(`Сайт відповів помилкою ${res.status}`);
@@ -104,7 +106,7 @@ export async function resolveContent(
         "Не вдалося завантажити сторінку за цим посиланням. Перевір URL.",
       );
     }
-    const text = stripHtml(html).slice(0, 60000);
+    const text = stripHtml(html).slice(0, MAX_TEXT_CHARS);
     if (text.length < 50) {
       throw new Error("На сторінці не знайшлося достатньо тексту.");
     }
@@ -114,8 +116,14 @@ export async function resolveContent(
     };
   }
 
+  const text = input.text.trim();
+  if (text.length === 0) {
+    throw new Error("Порожній текст.");
+  }
+  const truncated = text.slice(0, MAX_TEXT_CHARS);
+
   return {
-    contents: withFocus([input.text], input.focus),
-    inputTextForStorage: input.text,
+    contents: withFocus([truncated], input.focus),
+    inputTextForStorage: truncated,
   };
 }
