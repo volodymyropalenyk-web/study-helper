@@ -54,12 +54,14 @@ export function MindmapContent({
   }
 
   return (
-    <div>
+    <div
+      className={`animate-fade-in-up rounded-3xl border p-6 shadow-xl shadow-black/5 backdrop-blur-sm ${theme.cardClass}`}
+    >
       <div className="mb-4 flex justify-end">
         <button
           onClick={handleDownload}
           disabled={downloading}
-          className="text-sm font-medium text-teal-700 transition-colors hover:text-teal-900 disabled:opacity-50 dark:text-teal-400 dark:hover:text-teal-300"
+          className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 disabled:opacity-50 dark:text-slate-300 dark:hover:text-white"
         >
           {downloading ? "Готуємо файл..." : "⬇ Завантажити як зображення"}
         </button>
@@ -87,18 +89,20 @@ export function MindmapContent({
                 {/* connector column */}
                 <div className="flex w-8 flex-shrink-0 flex-col items-center">
                   <div
-                    className={`w-0.5 flex-1 bg-slate-300 dark:bg-slate-600 ${i === 0 ? "invisible" : ""}`}
+                    className={`w-0.5 flex-1 ${theme.connectorClass} ${i === 0 ? "invisible" : ""}`}
                   />
-                  <div className="h-6 w-full border-b-2 border-l-2 border-slate-300 dark:border-slate-600" />
                   <div
-                    className={`w-0.5 flex-1 bg-slate-300 dark:bg-slate-600 ${
+                    className={`h-6 w-full rounded-bl-xl border-b-2 border-l-2 ${theme.connectorBorderClass}`}
+                  />
+                  <div
+                    className={`w-0.5 flex-1 ${theme.connectorClass} ${
                       i === map.branches.length - 1 ? "invisible" : ""
                     }`}
                   />
                 </div>
 
                 <div className="flex-1 pb-4">
-                  <div className="flex items-start gap-2.5 rounded-2xl border border-card-border bg-card p-3 shadow-sm">
+                  <div className="flex items-start gap-2.5 rounded-2xl border border-white/60 bg-white/90 p-3 shadow-sm dark:border-white/5 dark:bg-slate-800/80">
                     <div
                       className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${branchColor} text-lg shadow-sm`}
                     >
@@ -115,7 +119,9 @@ export function MindmapContent({
                   </div>
 
                   {branch.children.length > 0 && (
-                    <div className="ml-5 mt-2 flex flex-col gap-1.5 border-l-2 border-slate-200 pl-4 dark:border-slate-700">
+                    <div
+                      className={`ml-5 mt-2 flex flex-col gap-1.5 border-l-2 pl-4 ${theme.connectorBorderClass}`}
+                    >
                       {branch.children.map((child, j) => (
                         <div key={j} className="flex items-baseline gap-1.5 text-sm">
                           <span className="font-medium text-slate-800 dark:text-slate-200">

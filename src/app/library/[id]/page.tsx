@@ -42,17 +42,15 @@ export default async function ProjectPage({
         {project.title}
       </h1>
 
-      <div className="animate-fade-in-up rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
-        {project.type === "test" && (
-          <TestContent resultText={project.result_text} />
-        )}
-        {project.type === "mindmap" && (
-          <MindmapContent resultText={project.result_text} color={project.color} />
-        )}
-        {project.type === "summary" && (
-          <SummaryContent text={project.result_text} color={project.color} />
-        )}
-      </div>
+      {project.type === "test" && (
+        <TestContent resultText={project.result_text} />
+      )}
+      {project.type === "mindmap" && (
+        <MindmapContent resultText={project.result_text} color={project.color} />
+      )}
+      {project.type === "summary" && (
+        <SummaryContent text={project.result_text} color={project.color} />
+      )}
     </main>
   );
 }

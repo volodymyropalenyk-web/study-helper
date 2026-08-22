@@ -33,7 +33,7 @@ export function TestContent({ resultText }: { resultText: string }) {
   );
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="animate-fade-in-up flex flex-col gap-5 rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
       {checked && (
         <div className="rounded-2xl bg-teal-50 p-4 text-center text-sm font-semibold text-teal-800 dark:bg-teal-950/40 dark:text-teal-300">
           Результат: {score} із {questions.length}

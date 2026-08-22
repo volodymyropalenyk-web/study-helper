@@ -342,7 +342,7 @@ export default function DashboardPage() {
       )}
 
       {result && (
-        <div className="animate-fade-in-up">
+        <div>
           <div className="mb-4 flex justify-end">
             <button
               onClick={resetForm}
@@ -351,15 +351,13 @@ export default function DashboardPage() {
               + Створити ще один
             </button>
           </div>
-          <div className="rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
-            {mode === "summary" && (
-              <SummaryContent text={result} color={color} />
-            )}
-            {mode === "test" && <TestContent resultText={result} />}
-            {mode === "mindmap" && (
-              <MindmapContent resultText={result} color={color} />
-            )}
-          </div>
+          {mode === "summary" && (
+            <SummaryContent text={result} color={color} />
+          )}
+          {mode === "test" && <TestContent resultText={result} />}
+          {mode === "mindmap" && (
+            <MindmapContent resultText={result} color={color} />
+          )}
         </div>
       )}
     </main>
