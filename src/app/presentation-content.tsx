@@ -141,6 +141,8 @@ export function PresentationContent({
       pptx.defineLayout({ name: "WIDE", width: 13.33, height: 7.5 });
       pptx.layout = "WIDE";
 
+      const accent = theme.hexAccent.replace("#", "");
+
       for (const [i, s] of slides.entries()) {
         const pSlide = pptx.addSlide();
         pSlide.background = { color: theme.exportBg.replace("#", "") };
@@ -150,9 +152,16 @@ export function PresentationContent({
         const textW = hasImage ? 6.2 : 11.7;
 
         if (i === 0) {
+          pSlide.addShape(pptx.ShapeType.rect, {
+            x: 0,
+            y: 0,
+            w: "100%",
+            h: 7.5,
+            fill: { color: accent },
+          });
           pSlide.addText(s.emoji, {
             x: 0,
-            y: 1.3,
+            y: 1.6,
             w: "100%",
             h: 1.3,
             align: "center",
@@ -160,42 +169,50 @@ export function PresentationContent({
           });
           pSlide.addText(s.title, {
             x: 0.8,
-            y: 2.7,
+            y: 3,
             w: 11.7,
             h: 1.2,
             align: "center",
             fontSize: 40,
             bold: true,
-            color: "1e293b",
+            color: "ffffff",
           });
           if (s.bullets[0]) {
             pSlide.addText(s.bullets[0], {
               x: 0.8,
-              y: 4,
+              y: 4.3,
               w: 11.7,
               h: 0.8,
               align: "center",
               fontSize: 20,
-              color: "475569",
+              color: "ffffff",
             });
           }
         } else {
+          pSlide.addShape(pptx.ShapeType.rect, {
+            x: 0,
+            y: 0,
+            w: "100%",
+            h: 1.2,
+            fill: { color: accent },
+          });
           pSlide.addText(`${s.emoji}  ${s.title}`, {
-            x: textX,
-            y: 0.5,
-            w: textW,
-            h: 0.9,
-            fontSize: 28,
+            x: 0.6,
+            y: 0,
+            w: 12.1,
+            h: 1.2,
+            valign: "middle",
+            fontSize: 26,
             bold: true,
-            color: theme.hexAccent.replace("#", ""),
+            color: "ffffff",
           });
           pSlide.addText(
             s.bullets.map((b) => ({ text: b, options: { bullet: true } })),
             {
               x: textX,
-              y: 1.6,
+              y: 1.7,
               w: textW,
-              h: 5.2,
+              h: 5.1,
               fontSize: 18,
               color: "1e293b",
               valign: "top",
@@ -210,10 +227,10 @@ export function PresentationContent({
             pSlide.addImage({
               data: dataUri,
               x: 7.3,
-              y: 0.6,
+              y: 1.7,
               w: 5.4,
-              h: 6.3,
-              sizing: { type: "contain", w: 5.4, h: 6.3 },
+              h: 5.1,
+              sizing: { type: "cover", w: 5.4, h: 5.1 },
             });
           } catch {
             // skip image if it can't be fetched
@@ -244,55 +261,58 @@ export function PresentationContent({
         </button>
       </div>
 
-      <div
-        className={`flex min-h-[320px] flex-col gap-4 rounded-2xl border border-white/60 bg-white/90 p-8 shadow-sm dark:border-white/5 dark:bg-slate-800/80 ${
-          slide.imageUrl && !isTitleSlide ? "sm:flex-row sm:items-start" : ""
-        }`}
-      >
-        <div
-          className={`flex flex-1 flex-col ${isTitleSlide ? "items-center text-center justify-center" : ""}`}
-        >
-          <div className={isTitleSlide ? "text-6xl" : "text-3xl"}>
-            {slide.emoji}
-          </div>
-          <h2
-            className={`mt-3 font-bold text-slate-900 dark:text-slate-100 ${
-              isTitleSlide ? "text-2xl" : "text-xl"
-            }`}
+      <div className="min-h-[320px] overflow-hidden rounded-2xl shadow-sm">
+        {isTitleSlide ? (
+          <div
+            className={`flex min-h-[320px] flex-col items-center justify-center gap-3 bg-gradient-to-br px-8 py-12 text-center text-white ${theme.gradient}`}
           >
-            {slide.title}
-          </h2>
-
-          {slide.bullets.length > 0 && (
-            <ul
-              className={`mt-5 flex flex-col gap-2.5 ${isTitleSlide ? "items-center" : ""}`}
+            <div className="text-6xl">{slide.emoji}</div>
+            <h2 className="text-3xl font-bold">{slide.title}</h2>
+            {slide.bullets[0] && (
+              <p className="text-lg text-white/85">{slide.bullets[0]}</p>
+            )}
+          </div>
+        ) : (
+          <>
+            <div
+              className={`flex items-center gap-3 bg-gradient-to-r px-8 py-5 text-white ${theme.gradient}`}
             >
-              {slide.bullets.map((b, i) => (
-                <li
-                  key={i}
-                  className={`flex gap-2 text-slate-700 dark:text-slate-300 ${
-                    isTitleSlide ? "" : "items-start"
-                  }`}
-                >
-                  {!isTitleSlide && (
-                    <span
-                      className={`mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-br ${theme.gradient}`}
-                    />
-                  )}
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+              <span className="text-3xl">{slide.emoji}</span>
+              <h2 className="text-xl font-bold">{slide.title}</h2>
+            </div>
+            <div
+              className={`flex flex-col gap-6 bg-white/90 p-8 dark:bg-slate-800/80 ${
+                slide.imageUrl ? "sm:flex-row sm:items-start" : ""
+              }`}
+            >
+              {slide.bullets.length > 0 && (
+                <ul className="flex flex-1 flex-col gap-2.5">
+                  {slide.bullets.map((b, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-slate-700 dark:text-slate-300"
+                    >
+                      <span
+                        className={`mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-br ${theme.gradient}`}
+                      />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-        {slide.imageUrl && !isTitleSlide && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={slide.imageUrl}
-            alt=""
-            className="max-h-72 w-full flex-1 rounded-xl object-contain sm:max-h-none sm:w-auto"
-          />
+              {slide.imageUrl && (
+                <div className="aspect-[4/5] w-full flex-shrink-0 overflow-hidden rounded-xl sm:w-56">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={slide.imageUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
 
