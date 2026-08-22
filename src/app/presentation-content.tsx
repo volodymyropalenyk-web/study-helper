@@ -142,81 +142,100 @@ export function PresentationContent({
       pptx.layout = "WIDE";
 
       const accent = theme.hexAccent.replace("#", "");
+      const FONT = "Calibri";
 
       for (const [i, s] of slides.entries()) {
         const pSlide = pptx.addSlide();
-        pSlide.background = { color: theme.exportBg.replace("#", "") };
+        pSlide.background = { color: "ffffff" };
+
+        // Thin brand rule at the top of every slide — subtle, not a solid block.
+        pSlide.addShape(pptx.ShapeType.rect, {
+          x: 0,
+          y: 0,
+          w: "100%",
+          h: 0.12,
+          fill: { color: accent },
+          line: { type: "none" },
+        });
 
         const hasImage = Boolean(s.imageUrl);
-        const textX = hasImage ? 0.6 : 0.8;
-        const textW = hasImage ? 6.2 : 11.7;
+        const textX = hasImage ? 0.7 : 1.2;
+        const textW = hasImage ? 6.1 : 10.9;
 
         if (i === 0) {
-          pSlide.addShape(pptx.ShapeType.rect, {
-            x: 0,
-            y: 0,
-            w: "100%",
-            h: 7.5,
-            fill: { color: accent },
-          });
           pSlide.addText(s.emoji, {
             x: 0,
-            y: 1.6,
+            y: 2.2,
             w: "100%",
-            h: 1.3,
+            h: 1.2,
             align: "center",
-            fontSize: 60,
+            fontSize: 54,
           });
           pSlide.addText(s.title, {
             x: 0.8,
-            y: 3,
+            y: 3.5,
             w: 11.7,
-            h: 1.2,
+            h: 1,
             align: "center",
-            fontSize: 40,
+            fontSize: 36,
             bold: true,
-            color: "ffffff",
+            fontFace: FONT,
+            color: "1e293b",
           });
           if (s.bullets[0]) {
             pSlide.addText(s.bullets[0], {
               x: 0.8,
-              y: 4.3,
+              y: 4.5,
               w: 11.7,
-              h: 0.8,
+              h: 0.6,
               align: "center",
-              fontSize: 20,
-              color: "ffffff",
+              fontSize: 18,
+              fontFace: FONT,
+              color: accent,
             });
           }
         } else {
-          pSlide.addShape(pptx.ShapeType.rect, {
-            x: 0,
-            y: 0,
-            w: "100%",
-            h: 1.2,
-            fill: { color: accent },
-          });
-          pSlide.addText(`${s.emoji}  ${s.title}`, {
+          pSlide.addText(s.emoji, {
             x: 0.6,
-            y: 0,
-            w: 12.1,
-            h: 1.2,
+            y: 0.45,
+            w: 0.9,
+            h: 0.8,
+            fontSize: 32,
+          });
+          pSlide.addText(s.title, {
+            x: 1.5,
+            y: 0.45,
+            w: 11.2,
+            h: 0.8,
             valign: "middle",
             fontSize: 26,
             bold: true,
-            color: "ffffff",
+            fontFace: FONT,
+            color: "1e293b",
+          });
+          pSlide.addShape(pptx.ShapeType.rect, {
+            x: 0.6,
+            y: 1.4,
+            w: 12.13,
+            h: 0.02,
+            fill: { color: "e2e8f0" },
+            line: { type: "none" },
           });
           pSlide.addText(
-            s.bullets.map((b) => ({ text: b, options: { bullet: true } })),
+            s.bullets.map((b) => ({
+              text: b,
+              options: { bullet: { code: "25A0", color: accent }, indentLevel: 0 },
+            })),
             {
               x: textX,
-              y: 1.7,
+              y: 1.75,
               w: textW,
-              h: 5.1,
-              fontSize: 18,
-              color: "1e293b",
+              h: 5,
+              fontSize: 17,
+              fontFace: FONT,
+              color: "334155",
               valign: "top",
-              paraSpaceAfter: 14,
+              paraSpaceAfter: 16,
             },
           );
         }
@@ -227,10 +246,11 @@ export function PresentationContent({
             pSlide.addImage({
               data: dataUri,
               x: 7.3,
-              y: 1.7,
+              y: 1.75,
               w: 5.4,
-              h: 5.1,
-              sizing: { type: "cover", w: 5.4, h: 5.1 },
+              h: 5,
+              rounding: true,
+              sizing: { type: "cover", w: 5.4, h: 5 },
             });
           } catch {
             // skip image if it can't be fetched
