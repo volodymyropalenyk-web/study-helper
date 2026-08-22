@@ -1,3 +1,7 @@
+"use client";
+
+import { useRef, useState } from "react";
+
 type Child = { title: string; thesis: string };
 type Branch = {
   title: string;
@@ -16,24 +20,10 @@ const NODE_COLORS = [
   "from-slate-500 to-slate-600",
 ];
 
-const SIZE = 1000;
-const CENTER = SIZE / 2;
-const BRANCH_RADIUS = 320;
-const CHILD_RADIUS = 460;
-
-function toXY(angleDeg: number, radius: number) {
-  const rad = (angleDeg * Math.PI) / 180;
-  return {
-    x: CENTER + radius * Math.cos(rad),
-    y: CENTER + radius * Math.sin(rad),
-  };
-}
-
-function pct(value: number) {
-  return `${(value / SIZE) * 100}%`;
-}
-
 export function MindmapContent({ resultText }: { resultText: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
+
   let map: Mindmap;
   try {
     map = JSON.parse(resultText);
@@ -45,134 +35,102 @@ export function MindmapContent({ resultText }: { resultText: string }) {
     );
   }
 
-  const branchCount = map.branches.length;
-  const branchAngleStep = 360 / branchCount;
-
-  const lines: { x1: number; y1: number; x2: number; y2: number }[] = [];
-  const branchPositions = map.branches.map((branch, i) => {
-    const angle = -90 + i * branchAngleStep;
-    const pos = toXY(angle, BRANCH_RADIUS);
-    lines.push({ x1: CENTER, y1: CENTER, x2: pos.x, y2: pos.y });
-
-    const childCount = branch.children.length;
-    const childSpread = 34;
-    const childPositions = branch.children.map((_, j) => {
-      const offset =
-        childCount === 1
-          ? 0
-          : -childSpread / 2 + (childSpread / (childCount - 1)) * j;
-      const childAngle = angle + offset;
-      const cpos = toXY(childAngle, CHILD_RADIUS);
-      lines.push({ x1: pos.x, y1: pos.y, x2: cpos.x, y2: cpos.y });
-      return cpos;
-    });
-
-    return { angle, pos, childPositions };
-  });
+  async function handleDownload() {
+    if (!containerRef.current) return;
+    setDownloading(true);
+    try {
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(containerRef.current, {
+        backgroundColor: "#ffffff",
+        pixelRatio: 2,
+      });
+      const link = document.createElement("a");
+      link.download = `${map.title || "mindmap"}.png`;
+      link.href = dataUrl;
+      link.click();
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
-    <div className="overflow-x-auto">
-      <div
-        className="relative mx-auto aspect-square w-full min-w-[600px] max-w-[820px]"
-        style={{ minHeight: 600 }}
-      >
-        <svg
-          viewBox={`0 0 ${SIZE} ${SIZE}`}
-          className="absolute inset-0 h-full w-full"
+    <div>
+      <div className="mb-4 flex justify-end">
+        <button
+          onClick={handleDownload}
+          disabled={downloading}
+          className="text-sm font-medium text-teal-700 transition-colors hover:text-teal-900 disabled:opacity-50 dark:text-teal-400 dark:hover:text-teal-300"
         >
-          <defs>
-            <marker
-              id="mm-arrow"
-              viewBox="0 0 10 10"
-              refX="8"
-              refY="5"
-              markerWidth="7"
-              markerHeight="7"
-              orient="auto-start-reverse"
-            >
-              <path
-                d="M0,0 L10,5 L0,10 z"
-                className="fill-slate-400 dark:fill-slate-500"
-              />
-            </marker>
-          </defs>
-          {lines.map((l, i) => (
-            <line
-              key={i}
-              x1={l.x1}
-              y1={l.y1}
-              x2={l.x2}
-              y2={l.y2}
-              className="stroke-slate-300 dark:stroke-slate-600"
-              strokeWidth={3}
-              markerEnd="url(#mm-arrow)"
-            />
-          ))}
-        </svg>
+          {downloading ? "Готуємо файл..." : "⬇ Завантажити як зображення"}
+        </button>
+      </div>
 
+      <div ref={containerRef} className="bg-white p-4 dark:bg-slate-900">
         {/* Central node */}
-        <div
-          className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-          style={{ left: pct(CENTER), top: pct(CENTER), width: "18%" }}
-        >
-          <div className="flex aspect-square w-full items-center justify-center rounded-full bg-gradient-to-br from-teal-600 to-slate-700 text-4xl shadow-lg shadow-teal-900/30 ring-4 ring-white dark:ring-slate-900">
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-teal-600 to-slate-700 text-4xl shadow-lg shadow-teal-900/30">
             {map.emoji}
           </div>
-          <div className="mt-2 rounded-lg bg-slate-900 px-2.5 py-1 text-center text-xs font-bold text-white shadow-md dark:bg-slate-700">
+          <div className="rounded-lg bg-slate-900 px-4 py-1.5 text-center font-bold text-white shadow-md dark:bg-slate-700">
             {map.title}
           </div>
         </div>
 
-        {/* Branch nodes */}
-        {map.branches.map((branch, i) => {
-          const { pos, childPositions } = branchPositions[i];
-          const color = NODE_COLORS[i % NODE_COLORS.length];
-          return (
-            <div key={i}>
-              <div
-                className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-                style={{ left: pct(pos.x), top: pct(pos.y), width: "13%" }}
-              >
-                <div
-                  className={`flex aspect-square w-full items-center justify-center rounded-full bg-gradient-to-br ${color} text-2xl shadow-md ring-4 ring-white dark:ring-slate-900`}
-                >
-                  {branch.emoji}
-                </div>
-                <div className="mt-1.5 max-w-[9rem] rounded-lg border border-card-border bg-card px-2 py-1 text-center shadow-sm backdrop-blur-sm">
-                  <div className="text-xs font-semibold text-slate-900 dark:text-slate-100">
-                    {branch.title}
-                  </div>
-                  <div className="text-[10px] leading-tight text-slate-600 dark:text-slate-400">
-                    {branch.thesis}
-                  </div>
-                </div>
-              </div>
-
-              {branch.children.map((child, j) => {
-                const cpos = childPositions[j];
-                return (
+        {/* Branches */}
+        <div className="mx-auto mt-2 flex max-w-2xl flex-col">
+          {map.branches.map((branch, i) => {
+            const color = NODE_COLORS[i % NODE_COLORS.length];
+            return (
+              <div key={i} className="flex gap-3">
+                {/* connector column */}
+                <div className="flex w-8 flex-shrink-0 flex-col items-center">
                   <div
-                    key={j}
-                    className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-                    style={{ left: pct(cpos.x), top: pct(cpos.y), width: "10%" }}
-                  >
+                    className={`w-0.5 flex-1 bg-slate-300 dark:bg-slate-600 ${i === 0 ? "invisible" : ""}`}
+                  />
+                  <div className="h-6 w-full border-b-2 border-l-2 border-slate-300 dark:border-slate-600" />
+                  <div
+                    className={`w-0.5 flex-1 bg-slate-300 dark:bg-slate-600 ${
+                      i === map.branches.length - 1 ? "invisible" : ""
+                    }`}
+                  />
+                </div>
+
+                <div className="flex-1 pb-4">
+                  <div className="flex items-start gap-2.5 rounded-2xl border border-card-border bg-card p-3 shadow-sm">
                     <div
-                      className={`h-2.5 w-2.5 rounded-full bg-gradient-to-br ${color} ring-2 ring-white dark:ring-slate-900`}
-                    />
-                    <div className="mt-1 max-w-[7rem] rounded-md border border-card-border bg-card px-1.5 py-1 text-center shadow-sm backdrop-blur-sm">
-                      <div className="text-[10px] font-semibold text-slate-800 dark:text-slate-200">
-                        {child.title}
+                      className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${color} text-lg shadow-sm`}
+                    >
+                      {branch.emoji}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-900 dark:text-slate-100">
+                        {branch.title}
                       </div>
-                      <div className="text-[9px] leading-tight text-slate-500 dark:text-slate-500">
-                        {child.thesis}
+                      <div className="text-sm text-slate-600 dark:text-slate-400">
+                        {branch.thesis}
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          );
-        })}
+
+                  {branch.children.length > 0 && (
+                    <div className="ml-5 mt-2 flex flex-col gap-1.5 border-l-2 border-slate-200 pl-4 dark:border-slate-700">
+                      {branch.children.map((child, j) => (
+                        <div key={j} className="flex items-baseline gap-1.5 text-sm">
+                          <span className="font-medium text-slate-800 dark:text-slate-200">
+                            {child.title}:
+                          </span>
+                          <span className="text-slate-600 dark:text-slate-400">
+                            {child.thesis}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

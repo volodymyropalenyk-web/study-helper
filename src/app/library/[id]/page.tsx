@@ -29,9 +29,7 @@ export default async function ProjectPage({
   }
 
   return (
-    <main
-      className={`mx-auto p-6 ${project.type === "mindmap" ? "max-w-4xl" : "max-w-2xl"}`}
-    >
+    <main className="mx-auto max-w-2xl p-6">
       <Link
         href="/library"
         className="text-sm font-medium text-teal-700 transition-colors hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-300"

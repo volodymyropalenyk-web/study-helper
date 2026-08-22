@@ -157,9 +157,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <main
-      className={`mx-auto p-6 transition-all duration-300 ${result && mode === "mindmap" ? "max-w-4xl" : "max-w-2xl"}`}
-    >
+    <main className="mx-auto max-w-2xl p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
           Brainmatika
