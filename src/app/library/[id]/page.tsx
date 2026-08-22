@@ -3,6 +3,13 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SummaryContent } from "@/app/summary-content";
 import { TestContent } from "@/app/test-content";
+import { MindmapContent } from "@/app/mindmap-content";
+
+const TYPE_ICON: Record<string, string> = {
+  test: "❓ ",
+  mindmap: "🧠 ",
+  summary: "📝 ",
+};
 
 export default async function ProjectPage({
   params,
@@ -22,7 +29,9 @@ export default async function ProjectPage({
   }
 
   return (
-    <main className="mx-auto max-w-2xl p-6">
+    <main
+      className={`mx-auto p-6 ${project.type === "mindmap" ? "max-w-4xl" : "max-w-2xl"}`}
+    >
       <Link
         href="/library"
         className="text-sm font-medium text-teal-700 transition-colors hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-300"
@@ -31,14 +40,18 @@ export default async function ProjectPage({
       </Link>
 
       <h1 className="mt-4 mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">
-        {project.type === "test" ? "❓ " : "📝 "}
+        {TYPE_ICON[project.type] ?? ""}
         {project.title}
       </h1>
 
       <div className="animate-fade-in-up rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
-        {project.type === "test" ? (
+        {project.type === "test" && (
           <TestContent resultText={project.result_text} />
-        ) : (
+        )}
+        {project.type === "mindmap" && (
+          <MindmapContent resultText={project.result_text} />
+        )}
+        {project.type === "summary" && (
           <SummaryContent text={project.result_text} />
         )}
       </div>

@@ -12,6 +12,7 @@ type Project = {
 const SECTIONS: { type: string; label: string }[] = [
   { type: "summary", label: "📝 Конспекти" },
   { type: "test", label: "❓ Тести" },
+  { type: "mindmap", label: "🧠 Інтелект-карти" },
 ];
 
 function ProjectList({ projects }: { projects: Project[] }) {

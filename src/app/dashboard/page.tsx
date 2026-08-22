@@ -5,9 +5,10 @@ import Link from "next/link";
 import { SignOutButton } from "@/app/sign-out-button";
 import { SummaryContent } from "@/app/summary-content";
 import { TestContent } from "@/app/test-content";
+import { MindmapContent } from "@/app/mindmap-content";
 import { createClient } from "@/lib/supabase/client";
 
-type Mode = "summary" | "test";
+type Mode = "summary" | "test" | "mindmap";
 type Source = "text" | "pdf" | "url";
 
 const MODES: { id: Mode; label: string; endpoint: string; cta: string }[] = [
@@ -22,6 +23,12 @@ const MODES: { id: Mode; label: string; endpoint: string; cta: string }[] = [
     label: "❓ Тест",
     endpoint: "/api/generate-test",
     cta: "Створити тест",
+  },
+  {
+    id: "mindmap",
+    label: "🧠 Карта",
+    endpoint: "/api/generate-mindmap",
+    cta: "Створити карту",
   },
 ];
 
@@ -150,7 +157,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl p-6">
+    <main
+      className={`mx-auto p-6 transition-all duration-300 ${result && mode === "mindmap" ? "max-w-4xl" : "max-w-2xl"}`}
+    >
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
           Brainmatika
@@ -319,11 +328,9 @@ export default function DashboardPage() {
             </button>
           </div>
           <div className="rounded-3xl border border-card-border bg-card p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
-            {mode === "summary" ? (
-              <SummaryContent text={result} />
-            ) : (
-              <TestContent resultText={result} />
-            )}
+            {mode === "summary" && <SummaryContent text={result} />}
+            {mode === "test" && <TestContent resultText={result} />}
+            {mode === "mindmap" && <MindmapContent resultText={result} />}
           </div>
         </div>
       )}
