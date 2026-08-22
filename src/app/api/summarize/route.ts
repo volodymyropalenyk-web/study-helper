@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveContent, type ResolveInput } from "@/lib/resolve-content";
 import { ai } from "@/lib/gemini";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(request: Request) {
   const supabase = await createClient();

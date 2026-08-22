@@ -34,13 +34,13 @@ function withFocus(parts: PartUnion[], focus?: string): PartUnion[] {
 }
 
 async function waitUntilActive(name: string) {
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 60; i++) {
     const file = await ai.files.get({ name });
     if (file.state === "ACTIVE") return file;
     if (file.state === "FAILED") {
       throw new Error("Gemini не зміг обробити файл.");
     }
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
   throw new Error("Файл обробляється надто довго. Спробуй ще раз.");
 }
